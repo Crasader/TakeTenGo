@@ -1,32 +1,32 @@
+#pragma once
 #ifndef __BOARD_MANAGER_H__
 #define __BOARD_MANAGER_H__
 
 #include <vector>
 #include "Board.h"
-#include "BoardsStorage.h"
+#include "BoardsStorageContainer.h"
 
 namespace TakeTen {
 
-	typedef std::shared_ptr<BoardsStorage> boardStoragePtr;
-	typedef std::vector <boardStoragePtr> vectorOfBoardStorage;
+	class BoardManager {
+		typedef std::shared_ptr<BoardsStorageContainer> boardStoragePtr;
+		typedef std::vector <boardStoragePtr> vectorOfBoardStorage;
 
-	typedef std::shared_ptr<Board> boardPtr;
-	typedef std::vector <boardPtr> vectorOfBoards;
-
-	class BoardManager
-	{
 	public:
-		static std::shared_ptr<BoardManager> BoardManager::getInstance();
-
+		~BoardManager();
+		static std::shared_ptr<BoardManager> getInstance();
 		bool init();
 		boardPtr getBoard(const Size& size, const size_t index);
-
-		void generateBoards();
+	
 	private:
-
-		void fillWithEmpty();
+		BoardManager();
 		vectorOfBoardStorage _boardsStorage;
+		static std::shared_ptr<BoardManager> _sharedBoardManager;
 
+#if GENERATE_BOARDS
+	public:
+		void generateBoards();
+#endif
 	};
 }
 

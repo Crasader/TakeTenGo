@@ -42,6 +42,8 @@
 // Feedback about the C++ port should be sent to Jasper Bedaux,
 // see http://www.bedaux.net/mtrand/ for e-mail address and info.
 
+#pragma once
+
 #ifndef MTRAND_H
 #define MTRAND_H
 

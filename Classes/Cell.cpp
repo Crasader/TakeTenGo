@@ -1,39 +1,36 @@
 #include "Cell.h"
 
 namespace TakeTen {
-	Cell::Cell() : _value(0), _position() { }
-
-	Cell::Cell(const Cell& other) : _value(other._value), _position(other._position) { }
-
-	Cell::Cell(Cell&& other) : _value(other._value), _position(other._position) { }
-
-	Cell::Cell(Position& position) : _value(0), _position(position) { }
-
-	Cell::Cell(Position& position, const char value) : _value(value), _position(position) { }
-
-	Cell::~Cell() { }
-
-	const Position& Cell::getPosition() const {
-		return _position;
-	}
-
+	Cell::Cell() 
+		: value(0), position() { }
+	
+	Cell::Cell(const Cell& other) 
+		: value(other.value), position(other.position) { }
+	
+	Cell::Cell(Cell&& other) 
+		: value(other.value), position(other.position) { }
+	
+	Cell::Cell(const Position& position) 
+		: value(0), position(position) { }
+	
+	Cell::Cell(const Position& position, const char value) 
+		: value(value), position(position) { }
+	
 	void Cell::reset() {
-		_value = -1;
-	}
-
-	char Cell::getValue() const {
-		return _value;
-	}
-
-	void Cell::setValue(char value) {
-		_value = value;
+		value = -1;
 	}
 
 	bool Cell::isZero() const {
-		return _value == 0;
+		return value == 0;
 	}
 
+	bool Cell::sameValue(const Cell& other) const {
+		return value == other.value || value == 10 - other.value || 10 - value == other.value;
+	}
 
-
+	std::size_t Cell::getHash() const {
+		size_t hash = (std::hash<int>()(value) ^ (position.getHash() << 1)) >> 1;
+		return hash;
+	}
 }
 

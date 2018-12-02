@@ -1,3 +1,4 @@
+#pragma once
 #ifndef __CELL_SPRITE_H__
 #define __CELL_SPRITE_H__
 
@@ -7,41 +8,63 @@
 #include "Size.h"
 #include "ColorHSB.h"
 
-class CellSprite : public cocos2d::Sprite
-{
-public:
-	static CellSprite* create(const unsigned char value, const TakeTen::Position& position, const TakeTen::Size& boardSize, const ColorHSB& color);
+namespace TakeTen {
+	class CellSprite : public cocos2d::Sprite {
+	public:
 
-	TakeTen::Position& getCellPosition();
-	
-	void select();
-	void unselect();
+		~CellSprite();
 
-	bool isSelected() const {
-		return _isSelected;
-	}
+		static CellSprite* create(const unsigned char value, const Position& position, const Size& boardSize, const ColorHSB& color);
 
-	void pop();
-	void show(float delayTimer);
+		Position& getCellPosition();
 
-	void hide();
+		void select();
+		void unselect();
 
-	static cocos2d::Vec2 cellPositionToVec2(const TakeTen::Position& position, const TakeTen::Size& boardSize);
+		bool isSelected() const {
+			return _isSelected;
+		}
 
-private:
-	
-	void playSound();
+		void pop();
+		void show(float delayTimer);
 
-	bool _isSelected;
-	unsigned char _value;
-	cocos2d::Sprite* _digitSprite;
+		void hide(float delayTimer = 0.0f);
 
-	CellSprite();
-	~CellSprite();
+		static cocos2d::Vec2 cellPositionToVec2(const Position& position, const Size& boardSize);
 
-	TakeTen::Position _position;
+		inline const cocos2d::Vec2& getBasePosition() const {
+			return _basePosition;
+		}
 
-};
+		inline void setBasePosition(const cocos2d::Vec2& basePosition) {
+			_basePosition = basePosition;
+		}
+
+		unsigned char getValue() const { return _value; }
+
+	private:
+
+		void playSound();
+
+		void resetZOrder();
+
+		bool _isSelected;
+		unsigned char _value;
+		cocos2d::Sprite* _digitSprite;
+
+		cocos2d::Vec2 _basePosition;
+		Position _cellPosition;
+
+		int _zOrder;
+
+		CellSprite();
+		
+
+		Position _position;
+	};
+}
+
+
 
 
 

@@ -1,15 +1,10 @@
-// mtrand.cpp, see include file mtrand.h for information
-
 #include "MtRand.h"
-// non-inline function definitions and static member definitions cannot
-// reside in header file because of the risk of multiple declarations
 
-// initialization of static private members
 unsigned long MTRand_int32::state[n] = { 0x0UL };
 int MTRand_int32::p = 0;
 bool MTRand_int32::init = false;
 
-void MTRand_int32::gen_state() { // generate new state vector
+void MTRand_int32::gen_state() {
 	for (int i = 0; i < (n - m); ++i)
 		state[i] = state[i + m] ^ twiddle(state[i], state[i + 1]);
 	for (int i = n - m; i < (n - 1); ++i)

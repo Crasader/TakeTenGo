@@ -1,33 +1,42 @@
 #include <memory>
 #include <vector>
 
-#include "Definitions.h"
-#include "BoardManager.h"
-#include "DataHandler.h"
 #include "cocos2d.h"
+
+#include "Definitions.h"
+#include "DataHandler.h"
+
+#include "BoardManager.h"
 
 namespace TakeTen {
 
-	static std::shared_ptr<BoardManager> _sharedBoardManager = nullptr;
-	static Size _sizes[6] = { Size(3, 3), Size(3, 4), Size(3, 5), Size(4, 4), Size(4, 5), Size(5, 5) };
+	//static Size _sizes[6] = { Size(3, 3), Size(3, 4), Size(3, 5), Size(4, 4), Size(4, 5), Size(5, 5) };
+	std::shared_ptr<BoardManager> BoardManager::_sharedBoardManager = nullptr;
 
-	std::shared_ptr<BoardManager> BoardManager::getInstance() {
-		if (!_sharedBoardManager) {
-			_sharedBoardManager = std::shared_ptr<BoardManager>(new (std::nothrow) BoardManager());
-			CCASSERT(_sharedBoardManager, "FATAL: Not enough memory");
-			_sharedBoardManager->init();
+	BoardManager::BoardManager() {
+		const Size sizes[6] = BOARDS_SIZES;
+		for (auto i = 0; i != 6; ++i) {
+			boardStoragePtr boardRecord(new BoardsStorageContainer(sizes[i]));
+			_boardsStorage.push_back(boardRecord);
 		}
-		return _sharedBoardManager;
+	}
+
+	BoardManager::~BoardManager() {
+		_boardsStorage.clear();
 	}
 
 	bool BoardManager::init() {
-
-		fillWithEmpty();
-
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+		clock_t startTime = clock();
+#endif
+		CCLOG("BOARD MANAGER >> INIT...");
 		auto dataHandler = DataHandler::getInstance();
-
 		vectorOfBoards boardsToLoad;
-		if (dataHandler->readBoards(boardsToLoad)) {
+		CCLOG("BOARD MANAGER >> READING BOARDS...");
+		auto loaded = dataHandler->readBoards(boardsToLoad);
+		if (loaded) {
+			CCLOG("BOARD MANAGER >> LOADED... ADDING BOARDS TO CONTAINER...");
+			/*
 			for (auto &b : boardsToLoad) {
 				for (const auto& bs : _boardsStorage) {
 					if (bs->getSize() == b->getSize()) {
@@ -36,42 +45,84 @@ namespace TakeTen {
 					}
 				}
 			}
+			*/
+
+			std::size_t boardsToloadIndex = 0;
+			std::size_t boardStorageIndex = 0;
+			auto bs = _boardsStorage[boardStorageIndex++];
+			
+			while (boardsToloadIndex < boardsToLoad.size()) {
+				auto b = boardsToLoad[boardsToloadIndex];
+				if (bs->getSize() == b->getSize()) {
+					bs->addBoard(b);
+					boardsToloadIndex++;
+					continue;
+				}
+				else {
+					bs = _boardsStorage[boardStorageIndex++];
+				}
+
+			}
+
+			CCLOG("BOARD MANAGER >> DONE...");
 			return true;
 		}
-
-		//dataHandler->saveBoards(_boardsStorage);
-
-		//return true;
+		CCLOG("BOARD MANAGER >> NOT LOADED...");
 		return false;
 	}
 
-	void BoardManager::fillWithEmpty() {
-		_boardsStorage.clear();
-		for (auto i = 0; i != 6; ++i) {
-			boardStoragePtr boardRecord(new BoardsStorage(_sizes[i]));
-			_boardsStorage.push_back(boardRecord);
-		}
-	}
-
-	void BoardManager::generateBoards() {
-		fillWithEmpty();
-		for (auto i = 0; i != 6; ++i) {
-			boardStoragePtr boardRecord(new BoardsStorage(_sizes[i]));
-			boardRecord->addMoreBoards();
-			_boardsStorage.push_back(boardRecord);
-		}
-		DataHandler::getInstance()->saveBoards(_boardsStorage);
-	}
-
 	boardPtr BoardManager::getBoard(const Size& size, const size_t index) {
-		boardPtr result;
-		bool found = false;
-		for (auto& bs : _boardsStorage) {
-			if (bs->getSize() == size) {
+		boardPtr result = nullptr;
+		for (auto bs : _boardsStorage) {
+			auto bsSize = bs->getSize();
+			if (bsSize == size) {
 				return bs->getBoard(index);
 			}
 		}
-		CCASSERT(found, "Board manager error");
-		return result;
+		CCASSERT(result, "Board manager error");
+		return nullptr;
 	}
+
+#if GENERATE_BOARDS
+
+	const int _generateCount[6] = BOARDS_TO_GENERATE;
+
+	std::shared_ptr<BoardManager> BoardManager::getInstance() {
+		if (!_sharedBoardManager) {
+			CCLOG("BOARD MANAGER >> CREATING INSTANCE...");
+			_sharedBoardManager = std::shared_ptr<BoardManager>(new (std::nothrow) BoardManager());
+			_sharedBoardManager->generateBoards();
+			auto loaded = _sharedBoardManager->init();
+			if (!loaded) {
+				CCLOG("BOARD MANAGER >> LOADING FAIL");
+				return nullptr;
+			}
+		}
+		return _sharedBoardManager;
+	}
+
+	void BoardManager::generateBoards() {
+		CCLOG("BOARD STORAGE EMPTY SIZE... %d", _boardsStorage.size());
+		CCLOG("GENERATE BOARDS...");
+		const Size sizes[6] = BOARDS_SIZES;
+		for (auto i = 0; i != 6; ++i) {
+			CCLOG("GENERATING %d, %d...", sizes[i].width, sizes[i].height);
+			_boardsStorage[i]->addMoreBoards(_generateCount[i]);
+		}
+		DataHandler::getInstance()->saveBoards(_boardsStorage);
+	}
+#else
+	std::shared_ptr<BoardManager> BoardManager::getInstance() {
+		if (!_sharedBoardManager) {
+			CCLOG("BOARD MANAGER >> CREATING INSTANCE...");
+			_sharedBoardManager = std::shared_ptr<BoardManager>(new (std::nothrow) BoardManager());
+			auto loaded = _sharedBoardManager->init();
+			if (!loaded) {
+				CCLOG("BOARD MANAGER >> LOADING FAIL");
+				return nullptr;
+			}
+		}
+		return _sharedBoardManager;
+	}
+#endif
 }

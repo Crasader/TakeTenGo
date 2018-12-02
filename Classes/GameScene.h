@@ -1,98 +1,77 @@
+#pragma once
 #ifndef __GAME_SCENE_H__
 #define __GAME_SCENE_H__
 
-#include <vector>
-#include <memory>
+//#include <vector>
+//#include <memory>
 #include "cocos2d.h"
+
 #include "CellSprite.h"
+#include "MenuButton.h"
 #include "Board.h"
 #include "ColorHSB.h"
+#include "BoardNode.h"
 
-class GameScene : public cocos2d::LayerColor
-{
-public:
+namespace TakeTen {
+	class GameScene : public cocos2d::LayerColor {
+	public:
 
-	void newGame();
+		void newGame();
 
-    static cocos2d::Scene* createScene(const TakeTen::Size& size);
-	virtual bool init(const TakeTen::Size& size);
-	
-	static GameScene* create(const TakeTen::Size& size) { 
-		GameScene *pRet = new GameScene();
-		if (pRet && pRet->init(size)) {
-			pRet->autorelease();
-			return pRet;
-		}
-		else {
-			delete pRet;
-			pRet = nullptr;
-			return nullptr;
-		}
-	}
+		static cocos2d::Scene* createScene(const Size& size);
+		virtual bool init(const Size& size);
 
-	void onExit();
+		static GameScene* create(const Size& size);
+		void onExit();
 
-private:
-	~GameScene();
+		void onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
 
-	bool touchesBegan(cocos2d::Touch* touch, cocos2d::Event* cEvent);
-	void touchesMoved(cocos2d::Touch* touch, cocos2d::Event* cEvent);
-	void touchesEnd(cocos2d::Touch* touch, cocos2d::Event* cEvent);
+	private:
+		~GameScene();
 
-	void selectCell(CellSprite* cell);
+		//bool touchesBegan(cocos2d::Touch* touch, cocos2d::Event* cEvent);
+		//void touchesMoved(cocos2d::Touch* touch, cocos2d::Event* cEvent);
+		//void touchesEnd(cocos2d::Touch* touch, cocos2d::Event* cEvent);
 
-	void createLabels();
-	void createMenuButtons();
-	void createBoard();
+		//bool selectCell(CellSprite* cell);
 
-	void congratulations();
+		void createLabels();
+		void createMenuButtons();
+		void createBoard();
 
-	void menuCloseCallback(cocos2d::Ref* pSender);
-	void menuUndo(cocos2d::Ref* pSender);
-	void menuQuit(cocos2d::Ref* pSender);
-	void menuHint(cocos2d::Ref* pSender);
-	void menuSettings(cocos2d::Ref* pSender);
-	void update(float dt) override;
+		void congratulations();
 
-	void updateTimeLabel();
-	void updateGameCountLabel();
+		void menuCloseCallback(cocos2d::Ref* pSender);
+		void menuUndo(cocos2d::Ref* pSender);
+		void menuQuit(cocos2d::Ref* pSender);
+		void menuPause(cocos2d::Ref* pSender);
 
-	void updateMenuButtons();
+		void update(float dt) override;
 
-	void resetTimers();
+		void updateLabelsPositions();
+		void updateTimeLabel();
 
-	void rebuildBoard();
+		void updateMenuButtons();
+		void introAnimationCompleted();
 
-	void createDot(const cocos2d::Vec2& position, const cocos2d::Color3B& color);
+		cocos2d::Label* _timeLabel;
+		BoardNode* _boardNode;
 
-	void unselectAll();
+		float _gameTimer;
+		float _animationDelayTimer;
 
-	CellSprite* _lastSelectedCell;
+		MenuButton* _quitMenu;
+		MenuButton* _undoMenu;
+		MenuButton* _pauseMenu;
 
-	std::vector<ColorHSB> _colors;
-	std::vector<CellSprite*> _cellButtons;
+		bool _won;
 
-	cocos2d::Node* _dotsNode;
-	cocos2d::Node* _boardNode;
-	cocos2d::SpriteBatchNode* _spriteBatch;
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) 
+		void afterScreenCaptured(bool succeed, const std::string& outputFile);
+		void captureScreen();
+#endif
+	};
+}
+#endif 
 
-	cocos2d::Sprite* _selectionSprite;
 
-	cocos2d::Label* _timeLabel;
-	cocos2d::Label* _countLabel;
-	
-	std::shared_ptr<TakeTen::Board> _gameBoard;
-
-	float _gameTimer;
-	float _animationDelayTimer;
-
-	cocos2d::MenuItem* _undoMenu;
-	cocos2d::MenuItem* _pauseMenu;
-
-	bool _won;
-	bool _rebuildDots;
-
-	bool _cellsRemoved;
-};
-
-#endif // __HELLOWORLD_SCENE_H__

@@ -1,58 +1,53 @@
-#include "SplashScene.h"
-#include "MainMenuScene.h"
+#include "SimpleAudioEngine.h"
+
 #include "Definitions.h"
-#include "BoardManager.h"
+#include "HelpScene.h"
+#include "MainMenuScene.h"
 #include "GameManager.h"
-#include "Board.h"
+#include "SplashScene.h"
 
-USING_NS_CC;
+namespace TakeTen {
+	cocos2d::Scene* SplashScene::createScene() {
+		auto scene = cocos2d::Scene::create();
+		auto layer = SplashScene::create();
+		scene->addChild(layer);
+		return scene;
+	}
 
-Scene* SplashScene::createScene()
-{
-    // 'scene' is an autorelease object
-    auto scene = Scene::create();
-    
-    // 'layer' is an autorelease object
-	auto layer = SplashScene::create();
+	// on "init" you need to initialize your instance
+	bool SplashScene::init() {
+		if (!LayerColor::initWithColor(cocos2d::Color4B(51, 51, 51, 255))) {
+			return false;
+		}
+		auto visibleSize = cocos2d::Director::getInstance()->getVisibleSize();
+		auto origin = cocos2d::Director::getInstance()->getVisibleOrigin();
+		auto spriteBatch = cocos2d::SpriteBatchNode::create(SPRITE_SHIT_PNG);
+		auto cache = cocos2d::SpriteFrameCache::getInstance();
+		cache->addSpriteFramesWithFile(SPRITE_SHIT_PLIST);
+		this->addChild(spriteBatch);
 
-    // add layer as a child to scene
-    scene->addChild(layer);
+		auto cellSprite = cocos2d::Sprite::createWithSpriteFrameName(LOGO_IMAGE);
+		cellSprite->setPosition(cocos2d::Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+		spriteBatch->addChild(cellSprite, 0);
 
-    // return the scene
-    return scene;
+		GameManager::getInstance();
+
+		this->scheduleOnce(schedule_selector(SplashScene::MainMenuLoader), SPLASH_DISPLAY_TIME);
+		return true;
+	}
+
+	void SplashScene::MainMenuLoader(float dt) {
+
+		if (GameManager::getInstance()->isFirstRun()) {
+			CCLOG("SPLASH SCENE >> FIRST RUN...");
+			auto helpScene = HelpScene::createScene();
+			cocos2d::Director::getInstance()->replaceScene(SCENE_TRANSITION(TRANSITION_TIME, helpScene));
+		}
+		else {
+			auto mainMenuScene = MainMenuScene::createScene();
+			cocos2d::Director::getInstance()->replaceScene(SCENE_TRANSITION(TRANSITION_TIME, mainMenuScene));
+		}
+	}
 }
 
-// on "init" you need to initialize your instance
-bool SplashScene::init()
-{
-    //////////////////////////////
-    // 1. super init first
-	if (!LayerColor::initWithColor(Color4B(51, 51, 51, 255)))
-    {
-        return false;
-    }
-    
-    auto visibleSize = Director::getInstance()->getVisibleSize();
-    auto origin = Director::getInstance()->getVisibleOrigin();
-	auto spriteBatch = SpriteBatchNode::create("spriteSheet.png");
-	auto cache = SpriteFrameCache::getInstance();
-	cache->addSpriteFramesWithFile("spriteSheet.plist");
-	this->addChild(spriteBatch);
 
-	auto cellSprite = Sprite::createWithSpriteFrameName("logo.png");
-	cellSprite->setPosition(Point(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
-	//cellSprite->setColor()
-	spriteBatch->addChild(cellSprite, 0);
-
-	CocosDenshion::SimpleAudioEngine::getInstance()->setEffectsVolume(1.0f);
-	//CocosDenshion::SimpleAudioEngine::getInstance()->playBackgroundMusic("music.wav", true);
-
-	this->scheduleOnce(schedule_selector(SplashScene::MainMenuLoader), SPLASH_DISPLAY_TIME);
-    return true;
-}
-
-void SplashScene::MainMenuLoader(float dt) {
-	TakeTen::GameManager::getInstance();
-	auto mainMenuScene = MainMenuScene::createScene();
-	Director::getInstance()->replaceScene(SCENE_TRANSITION(TRANSITION_TIME, mainMenuScene));
-}

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef  _APP_DELEGATE_H_
 #define  _APP_DELEGATE_H_
 
@@ -32,6 +33,10 @@ public:
     @param  the pointer of the application
     */
     virtual void applicationWillEnterForeground();
+
+	//virtual bool openURL(const std::string &url);
+
+	virtual void initGLContextAttrs();
 };
 
 #endif // _APP_DELEGATE_H_

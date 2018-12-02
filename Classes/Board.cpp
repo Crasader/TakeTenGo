@@ -1,47 +1,28 @@
-#include "Board.h"
-#include "Definitions.h"
 #include "cocos2d.h"
+#include "Tools.h"
+#include "Board.h"
 
 namespace TakeTen {
-	Board::Board() : _size(3, 3) {
-	}
-
-	Board::Board(const int size)
-		: _size(size, size) {
-	}
-
-	Board::Board(const int width, const int height)
-		: _size(width, height) {
-	}
-
-	Board::Board(const Size& size) 
-		: _size(size) {
-	}
 
 	Board::Board(const Board& other) 
 		: _size(other._size), _cells(other._cells),
 		_foundPairs(other._foundPairs), _selectedPair(other._selectedPair),
-		_initialPairs (other._initialPairs) {
-	}
+		_initialPairs (other._initialPairs) { }
 
 	Board::Board(Board&& other)
 		: _size(other._size), _cells(other._cells),
 		_foundPairs(other._foundPairs), _selectedPair(other._selectedPair),
-		_initialPairs(other._initialPairs) {
-	}
+		_initialPairs(other._initialPairs) { }
 
-	Board::Board(const Size& size, std::vector<char>& values) 
-		: _size(size) {
-
-		unsigned char column = _size.getWidht();
-		unsigned char row = _size.getHeight();
-
-		for (auto r = 0; r != row; ++r)
+	Board::Board(const Size& size, std::vector<char> values) : _size(size) {
+		auto column = _size.width;
+		auto row = _size.height;
+		for (auto r = 0; r != row; ++r) {
 			for (auto c = 0; c != column; ++c) {
 				auto index = getIndex(c, r);
 				_cells.push_back(Cell(Position(c, r), values[index]));
 			}
-
+		}
 		findPairs();
 	}
 
@@ -76,32 +57,25 @@ namespace TakeTen {
 	}
 
 	bool Board::selectCell(const Cell& cell, Pair& foundPair) {
-
-		auto cell1 = _selectedPair.getCell1();
-		auto cell2 = _selectedPair.getCell2();
-
+		auto cell1 = _selectedPair.cell1;
+		auto cell2 = _selectedPair.cell2;
 		if (cell1 == cell || cell2 == cell) {
 			_selectedPair = Pair();
-			_selectedPair.setCell1(cell);
+			_selectedPair.cell1 = cell;
 			return false;
 		}
-
-		if (cell1.getValue() < 0) {
-			_selectedPair.setCell1(cell);
+		if (cell1.value < 0) {
+			_selectedPair.cell1 = cell;
 			return false;
 		}
-
-		if (cell2.getValue() < 0) {
-			_selectedPair.setCell2(cell);
+		if (cell2.value < 0) {
+			_selectedPair.cell2 = cell;
 		}
-
 		if (removePair(foundPair)) {
 			return true;
 		}
-
 		_selectedPair = Pair();
-		_selectedPair.setCell1(cell);
-
+		_selectedPair.cell1 = cell;
 		return false;
 	}
 
@@ -110,8 +84,8 @@ namespace TakeTen {
 			if (foundPair == _selectedPair) {
 				addToUndo();
 				pair = _selectedPair;
-				auto cell1 = _selectedPair.getCell1();
-				auto cell2 = _selectedPair.getCell2();
+				auto cell1 = _selectedPair.cell1;
+				auto cell2 = _selectedPair.cell2;
 				auto index1 = getIndex(cell1);
 				auto index2 = getIndex(cell2);
 				_cells[index1].reset();
@@ -124,46 +98,157 @@ namespace TakeTen {
 		return false;
 	}
 
-	void Board::reset() {
+	
 
+	bool Board::isEmpty() const {
+		for (auto& c : _cells) {
+			if (c.value > 0) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	void Board::findPairs() {
+		_foundPairs.clear();
+		if (isEmpty()) {
+			return;
+		}
+		Cell foundCell;
+		for (auto i = 0; i < _size.getCount(); i++) {
+			auto cell = _cells[i];
+			if (checkRight(cell, foundCell))
+				_foundPairs.push_back(Pair(cell, foundCell));
+			if (checkDown(cell, foundCell))
+				_foundPairs.push_back(Pair(cell, foundCell));
+		}
+	}
+
+	bool Board::checkRight(const Cell& cell, Cell& result) {
+		bool found = false;
+		auto columnsCount = _size.width;
+		auto position(cell.position);
+		auto start = position.column + 1;
+		if (start == columnsCount) {
+			return found;
+		}
+		for (auto c = start; c != columnsCount; ++c) {
+			auto index = getIndex(c, position.row);
+			auto foundCell = _cells[index];
+			if (foundCell.value < 1)  {
+				continue;
+			}
+			if (foundCell.sameValue(cell)) {
+				result = _cells[index];
+				found = true;
+				break;
+			}
+			else {
+				break;
+			}
+
+		}
+		return found;
+	}
+
+	bool Board::checkDown(const Cell& cell, Cell& result) {
+		bool found = false;
+		auto rowsCount = _size.height;
+		auto position(cell.position);
+		auto start = position.row + 1;
+		if (start == rowsCount) {
+			return found;
+		}
+		for (auto r = start; r != rowsCount; ++r) {
+			auto index = getIndex(position.column, r);
+			auto foundCell = _cells[index];
+			if (foundCell.value < 1) {
+				continue;
+			}
+			if (foundCell.sameValue(cell)) {
+				result = _cells[index];
+				found = true;
+				break;
+			}
+			else {
+				break;
+			}
+		}
+		return found;
+	}
+
+	const int Board::getIndex(const Cell& cell) const {
+		return getIndex(cell.position);
+	}
+
+	const int Board::getIndex(const Position& position) const {
+		return _size.width*position.row + position.column;
+	}
+
+	const int Board::getIndex(const int column, const int row) const {
+		return _size.width * row + column;
+	}
+
+	void Board::printBoard() {
+		cocos2d::log("Board #%d", getHash());
+	}
+
+	void Board::addToUndo() {
+		std::vector<char> data;
+		for (auto& c : _cells) {
+			data.push_back(c.value);
+		}
+		_undoData.push_back(data);
+	}
+
+	void Board::undo() {
+		if (canUndo()) {
+			auto data = _undoData.back();
+			_undoData.pop_back();
+			for (auto i = 0; i != _cells.size(); ++i) {
+				_cells[i].value = data[i];
+			}
+			findPairs();
+		}
+	}
+
+#if GENERATE_BOARDS
+
+	Board::Board() : _size(3, 3) {	}
+
+	Board::Board(const int size)
+		: _size(size, size) { }
+
+	Board::Board(const int width, const int height)
+		: _size(width, height) { }
+
+	Board::Board(const Size& size) 
+		: _size(size) { }
+
+	void Board::reset() {
 		_selectedPair = Pair();
 
 		_initialPairs.clear();
 		_foundPairs.clear();
 		_cells.clear();
-		
-		unsigned char column = _size.getWidht();
-		unsigned char row = _size.getHeight();
 
-		for (auto r = 0; r != row; ++r)
-			for (auto c = 0; c != column; ++c)
+		auto column = _size.width;
+		auto row = _size.height;
+
+		for (auto r = 0; r != row; ++r) {
+			for (auto c = 0; c != column; ++c) {
 				_cells.push_back(Cell(Position(c, r)));
-
-		if (false) //TTRANDBOOL
-			if (column == row)
-				if (Tools::randBool())
-					for (auto i = 1; i != column - 1; ++i)
-						_cells[getIndex(i, i)] = Cell(Position(i, i), -1);
-				else 
-					for (auto i = 1; i != column - 1; ++i)
-						_cells[getIndex(column - i - 1, i)] = Cell(Position(column - i - 1, i), -1);
-
+			}
+		}
 		if (_size.getCount() % 2 != 0) {
-			column = _size.getWidht() / 2;
-			row = _size.getHeight() / 2;
+			column = _size.width / 2;
+			row = _size.height / 2;
 			_cells[getIndex(column, row)] = Cell(Position(column, row), -1);
 		}
 	}
 
-	bool Board::isEmpty() const {
-		for (auto& c : _cells) {
-			if (c.getValue() > 0)
-				return false;
-		}
-		return true;
-	}
-
 	void Board::init() {
+
 		reset();
 
 		bool isColumn;
@@ -172,8 +257,8 @@ namespace TakeTen {
 		char index1 = 0;
 		char index2 = 0;
 
-		auto width = _size.getWidht();
-		auto height = _size.getHeight();
+		auto width = _size.width;
+		auto height = _size.height;
 
 		auto randoms = 1;
 
@@ -181,7 +266,6 @@ namespace TakeTen {
 		Position position2;
 
 		while (randoms > 0) {
-			
 			isColumn = Tools::randBool();
 
 			position1 = Position();
@@ -191,8 +275,9 @@ namespace TakeTen {
 			auto r = Tools::randRange(0, height - 1);
 
 			auto cell = getCellByPosition(Position(c, r));
-			if (!cell.isZero()) 
+			if (!cell.isZero()) {
 				continue;
+			}
 
 			if (isColumn) {
 				auto columns = getEmptyColumns(r);
@@ -217,17 +302,21 @@ namespace TakeTen {
 			index1 = getIndex(position1);
 			index2 = getIndex(position2);
 
-			if (_cells[index1].getValue() < 0)
+			if (_cells[index1].value < 0) {
 				continue;
-			if (_cells[index2].getValue() < 0)
+			}
+			if (_cells[index2].value < 0) {
 				continue;
-			if (!_cells[index1].isZero())
+			}
+			if (!_cells[index1].isZero()) {
 				continue;
-			if (!_cells[index2].isZero())
+			}
+			if (!_cells[index2].isZero()) {
 				continue;
+			}
 
-			_cells[index1] = pair.getCell1();
-			_cells[index2] = pair.getCell2();
+			_cells[index1] = pair.cell1;
+			_cells[index2] = pair.cell2;
 
 			_initialPairs.push_back(pair);
 
@@ -246,12 +335,15 @@ namespace TakeTen {
 					bool canBeColumn = columns.size() > 1;
 					bool canBeRow = rows.size() > 1;
 
-					if (canBeColumn && canBeRow)
+					if (canBeColumn && canBeRow) {
 						isColumn = Tools::randBool();
-					else if (canBeColumn)
+					}
+					else if (canBeColumn) {
 						isColumn = true;
-					else if (canBeRow)
+					}
+					else if (canBeRow) {
 						isColumn = false;
+					}
 					else {
 						succeeded = false;
 						break;
@@ -276,64 +368,31 @@ namespace TakeTen {
 					auto pair = Pair(position1, position2);
 					index2 = getIndex(position2);
 
-					_cells[index1] = pair.getCell1();
-					_cells[index2] = pair.getCell2();
+					_cells[index1] = pair.cell1;
+					_cells[index2] = pair.cell2;
 
 					_initialPairs.push_back(pair);
 				}
 				++index1;
-
-				
 			}
-			if (!succeeded) 
+			if (!succeeded) {
 				break;
+			}
 		}
-
-/*
-// 		
-// 		if (succeeded)
-// 			if (_size.getCount() > 9)
-// 				if (!checkNumbers())
-// 					succeeded = false;
-*/
-		
-		if (!succeeded) 
-			init();
-		else
+		if (_size.width > 3 || _size.height > 3)
+		{
+			succeeded = checkNumbers();
+		}
+		if (succeeded) {
 			findPairs();
-	}
-
-	void Board::findPairs() {
-		_foundPairs.clear();
-		if (isEmpty()) {
-			return;
 		}
-
-		
-		Cell foundCell;
-		for (auto i = 0; i < _size.getCount(); i++) {
-			auto cell = _cells[i];
-			if (checkRight(cell, foundCell))
-				_foundPairs.push_back(Pair(cell, foundCell));
-			if (checkDown(cell, foundCell))
-				_foundPairs.push_back(Pair(cell, foundCell));
+		else {
+			init();
 		}
 	}
 
 	bool Board::solve(Pair& tmpPair) {
-
-		CCLOG("Total pairs: %d", _foundPairs.size());
-		auto found = _foundPairs.size() > 0;
-		if (found) {
-			auto index = TakeTen::Tools::randRange(0, _foundPairs.size() - 1);
-			tmpPair = _foundPairs[index];
-			//_selectedPair = tmpPair;
-			//found = removePair(tmpPair);
-		}
-
-		return found;
-
-		/*
+		//CCLOG("Total pairs: %d", _foundPairs.size());
 		auto found = false;
 		for (auto& foundPair : _foundPairs) {
 			for (auto& pair : _initialPairs) {
@@ -342,7 +401,7 @@ namespace TakeTen {
 					found = removePair(tmpPair);
 					break;
 				}
-			}
+			}	
 			if (found) {
 				break;
 			}
@@ -351,7 +410,6 @@ namespace TakeTen {
 			return true;
 		}
 		return false;
-		*/
 	}
 
 	bool Board::canBeSolved() {
@@ -367,180 +425,111 @@ namespace TakeTen {
 		return true;
 	}
 
-	bool Board::checkRight(const Cell& cell, Cell& result) {
-		bool found = false;
-		auto columnsCount = _size.getWidht();
-		auto position = cell.getPosition();
-		auto start = position.getColumn() + 1;
-		if (start == columnsCount)
-			return found;
-		for (auto c = start; c != columnsCount; ++c) {
-			auto index = getIndex(c, position.getRow());
-			auto foundCell = _cells[index];
-			if (foundCell.getValue() < 1)
-				continue;
-			if (foundCell.sameValue(cell)) {
-				result = _cells[index];
-				found = true;
-				break;
-			}
-			else
-				break;
-		}
-		return found;
-	}
-
-	bool Board::checkDown(const Cell& cell, Cell& result) {
-		bool found = false;
-		auto rowsCount = _size.getHeight();
-		auto position = cell.getPosition();
-		auto start = position.getRow() + 1;
-		if (start == rowsCount)
-			return found;
-		for (auto r = start; r != rowsCount; ++r) {
-			auto index = getIndex(position.getColumn(), r);
-			auto foundCell = _cells[index];
-			if (foundCell.getValue() < 1)
-				continue;
-			if (foundCell.sameValue(cell)) {
-				result = _cells[index];
-				found = true;
-				break;
-			}
-			else
-				break;
-		}
-		return found;
-	}
-
 	bool Board::checkNumbers() const {
 		int numbers[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		int count = _size.getCount();
 
-		for (int i = 0; i != count; ++i) {
-			auto index = _cells[i].getValue() - 1;
-			if (index < 0)
+		for (auto i = 0; i != count; ++i) {
+			if (_cells[i].value == 0)
+			{
+				return false;
+			}
+			auto index = _cells[i].value - 1;
+			if (index < 0) {
 				continue;
+			}
 			numbers[index]++;
 		}
-		for (int i = 0; i < 9; i++)
-			if (numbers[i] == 0)
+		for (auto i = 0; i != 9; ++i) {
+			if (!USE_FIVE)
+			{
+				if (i == 4) continue;
+			}
+			if (numbers[i] == 0) {
 				return false;
+			}
+		}
 		return true;
-	}
-
-	const int Board::getIndex(const Cell& cell) const {
-		return getIndex(cell.getPosition());
-	}
-
-	const int Board::getIndex(const Position& position) const {
-		return _size.getWidht()*position.getRow() + position.getColumn();
-	}
-
-	const int Board::getIndex(const int column, const int row) const {
-		return _size.getWidht() * row + column;
 	}
 
 	bool Board::isFull() const {
 		int count = _size.getCount();
-		for (auto i = 0; i != count; ++i)
-			if (_cells[i].isZero())
+		for (auto i = 0; i != count; ++i) {
+			if (_cells[i].isZero()) {
 				return false;
-		
+			}
+		}
 		return true;
 	}
 
 	bool Board::rowIsFull(const unsigned char row) const {
 		auto startIndex = getIndex(0, row);
-		auto endIndex = startIndex + _size.getHeight();
-		for (auto index = startIndex; index != endIndex; ++index)
-			if (_cells[index].isZero())
+		auto endIndex = startIndex + _size.height;
+		for (auto index = startIndex; index != endIndex; ++index) {
+			if (_cells[index].isZero()) {
 				return false;
+			}
+		}
 		return true;
 	}
 
 	bool Board::allRowsAreFull() const {
-		for (auto r = 0; r != _size.getHeight(); ++r)
-			if (!rowIsFull(r))
+		for (auto r = 0; r != _size.height; ++r) {
+			if (!rowIsFull(r)) {
 				return false;
+			}
+		}
+			
 		return true;
 	}
 
 	bool Board::columnIsFull(const unsigned char column) const {
-		auto width = _size.getWidht();
-		auto height = _size.getHeight();
+		auto width = _size.width;
+		auto height = _size.height;
 		for (auto r = 0; r < width; r++) {
 			auto index = height * r + column;
-			if (_cells[index].isZero())
+			if (_cells[index].isZero()) {
 				return false;
+			}
 		}
 		return true;
 	}
 
 	bool Board::allColumnAreFull() const {
-		auto width = _size.getWidht();
+		auto width = _size.width;
 		for (auto c = 0; c < width; c++) {
-			if (!columnIsFull(c))
+			if (!columnIsFull(c)) {
 				return false;
+			}
 		}
 		return true;
 	}
 
 	std::vector<unsigned char> Board::getEmptyRows(const unsigned char column) const {
 		std::vector<unsigned char> result;
-		auto height = _size.getHeight();
-		for (auto r = 0; r < height; r++)
-			if (_cells[getIndex(column, r)].isZero())
+		auto height = _size.height;
+		for (auto r = 0; r < height; r++) {
+			if (_cells[getIndex(column, r)].isZero()) {
 				result.push_back(r);
+			}
+		}
 		return result;
 	}
 
 	std::vector<unsigned char> Board::getEmptyColumns(const unsigned char row) const {
 		std::vector<unsigned char> result;
-		auto width = _size.getWidht();
-		for (auto c = 0; c < width; c++) 
-			if (_cells[getIndex(c, row)].isZero())
+		auto width = _size.width;
+		for (auto c = 0; c < width; c++) {
+			if (_cells[getIndex(c, row)].isZero()) {
 				result.push_back(c);
+			}
+		}
 		return result;
 	}
 
-	void Board::printBoard() {
-		CCLOG("*****************");
-		std::string result;
-		unsigned char c = 0;
-		auto count = _size.getCount();
-		auto width = _size.getWidht();
-		auto height = _size.getHeight();
-		for (auto i = 0; i < count; i++) {
-			if (c == width) {
-				c = 0;
-				result += '\n';
-			}
-			auto value = (_cells[i].getValue() > 0 ? std::to_string(_cells[i].getValue()) : " ");
-			result += value + ' ';
-			c++;
-		}
-		CCLOG(result.c_str());
-	}
+#endif
 
-	void Board::addToUndo() {
-		std::vector<char> data;
-		for (auto& c : _cells) {
-			data.push_back(c.getValue());
-		}
-		_undoData.push_back(data);
-	}
-
-	void Board::undo() {
-		if (canUndo()) {
-			auto data = _undoData.back();
-			_undoData.pop_back();
-			for (auto i = 0; i != _cells.size(); ++i) {
-				_cells[i].setValue(data[i]);
-			}
-			findPairs();
-		}
-	}
+	
 }
 
 

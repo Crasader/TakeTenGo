@@ -1,33 +1,35 @@
+#pragma once
 #ifndef __GAME_MANAGER_H__
 #define __GAME_MANAGER_H__
 
-#include "Size.h"
+#include "AdmobHelper.h"
+#include "GameProgressContainer.h"
+#include "ScoreManager.h"
 #include "Board.h"
-#include "Definitions.h"
-#include <memory>
-#include <iostream>
-#include <fstream>
-#include <string>
 
 namespace TakeTen {
-
-	struct GameProgress {
-		GameProgress();
-		GameProgress(const TakeTen::Size& size, char index, float time);
-		TakeTen::Size size;
-		size_t index;
-		float time;
-	};
 
 	typedef std::shared_ptr<Board> boardPtr;
 
 	class GameManager {
 	public:
 		~GameManager();
-		static std::shared_ptr<GameManager> GameManager::getInstance();
+		static std::shared_ptr<GameManager> getInstance();
+
+		void setSound(bool sound);
+
+		inline void switchSound() {
+			setSound(!_isSoundOn);
+		}
+
+		void soundSelect(bool force = false);
+		void soundRemove();
+		void soundUndo();
+		void soundWon();
 
 		bool save();
 		void newGame(GameDifficuty difficulty);
+		void resetGame(GameDifficuty difficulty);
 
 		void setTime(float time);
 
@@ -40,6 +42,14 @@ namespace TakeTen {
 
 		void won();
 
+		inline bool isSound() const {
+			return _isSoundOn;
+		}
+
+		inline bool isFirstRun() const {
+			return _isFirstRun;
+		}
+
 		inline size_t getIndex() const {
 			return _gameProgress[_currentGameDifficulty].index;
 		}
@@ -48,9 +58,12 @@ namespace TakeTen {
 			return _gameProgress[boardIndex].index;
 		}
 
+		inline GameDifficuty getDifficulty() const {
+			return _currentGameDifficulty;
+		}
+
 		static inline GameDifficuty nextDiffuculty(GameDifficuty currentDifficulty) {
-			switch (currentDifficulty)
-			{
+			switch (currentDifficulty) {
 			case TakeTen::Practice:
 				return TakeTen::Easy;
 			case TakeTen::Easy:
@@ -61,22 +74,37 @@ namespace TakeTen {
 				return TakeTen::Ultimate;
 			case TakeTen::Ultimate:
 				return TakeTen::Hardcore;
+			default:
+				return TakeTen::Completed;
 			}
-			return TakeTen::Practice;
+			
 		}
 
+		inline bool isPause() const {
+			return _isPause;
+		}
 
+		inline void setPause(bool pause = true) {
+			_isPause = pause;
+		}
+
+		bool _boardsLoaded;
 
 	private:
 		GameManager();
 
-		std::string getFilePath(const std::string& fileName);
-
 		void init();
 		bool load();
 
-		GameProgress _gameProgress[6];
+		bool _isFirstRun;
+		bool _isSoundOn;
+
+		bool _isPause;
+
+		GameProgressContainer _gameProgress[6];
 		GameDifficuty _currentGameDifficulty;
+
+		static std::shared_ptr<GameManager> _sharedGameManager;
 	};
 }
 

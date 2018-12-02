@@ -1,12 +1,11 @@
+#pragma once
 #ifndef __TT_SIZE_H__
 #define __TT_SIZE_H__
 
 #include "Position.h"
-#include <functional>
 
 namespace TakeTen {
-	class Size
-	{
+	struct Size {
 	public:
 		Size();
 		Size(const unsigned char width, const unsigned char height);
@@ -14,22 +13,15 @@ namespace TakeTen {
 		Size(Size&& other);
 		~Size();
 
-		unsigned char getWidht() const;
-		unsigned char getHeight() const;
 		unsigned char getCount() const;
 
-		const unsigned char getIndex(const Position& position) const {
-			return _width*position.getRow() + position.getColumn();
-		}
-
-		const unsigned char getIndex(const unsigned char column, const unsigned char row) const {
-			return _width * row + column;
-		}
+		const unsigned char getIndex(const Position& position) const;
+		const unsigned char getIndex(const unsigned char column, const unsigned char row) const;
 
 		Size& operator= (const Size& other) {
 			if (this != &other) {
-				_width = other._width;
-				_height = other._height;
+				width = other.width;
+				height = other.height;
 				_count = other._count;
 			}
 
@@ -38,8 +30,8 @@ namespace TakeTen {
 
 		Size& operator= (Size&& other) {
 			if (this != &other) {
-				_width = other._width;
-				_height = other._height;
+				width = other.width;
+				height = other.height;
 				_count = other._count;
 			}
 
@@ -47,21 +39,19 @@ namespace TakeTen {
 		}
 
 		bool operator== (const Size& other) {
-			return (_width == other._width) && (_height == other._height);
+			return (width == other.width) && (height == other.height);
 		}
 
 		bool operator!= (const Size& other) {
-			return (_width != other._width) || (_height != other._height);
+			return (width != other.width) || (height != other.height);
 		}
 
-		std::size_t getHash() const {
-			size_t hash = (std::hash<int>()(_width) ^ std::hash<int>()(_height << 1)) >> 1;
-			return hash;
-		}
+		std::size_t getHash() const;
+
+		unsigned char width;
+		unsigned char height;
 
 	private:
-		unsigned char _width;
-		unsigned char _height;
 		unsigned char _count;
 	};
 }

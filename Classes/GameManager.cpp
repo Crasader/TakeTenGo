@@ -1,27 +1,27 @@
-#include "GameManager.h"
+#include <fstream>
+
+#include "cocos2d.h"
+#include "SimpleAudioEngine.h"
+
+#include "Definitions.h"
 #include "BoardManager.h"
 #include "GameScene.h"
 #include "MainMenuScene.h"
-#include "Size.h"
-#include "cocos2d.h"
+
+#include "ScoreManager.h"
+
+#include "GameManager.h"
 
 namespace TakeTen {
 	
-	GameProgress::GameProgress()
-		: size(0, 0), index(0), time(0) { }
+	std::shared_ptr<GameManager> GameManager::_sharedGameManager = nullptr;
 
-	GameProgress::GameProgress(const TakeTen::Size& newSize, char newIndex, float newTime)
-		: size(newSize), index(newIndex), time(newTime) { }
-
-	static std::shared_ptr<GameManager> _sharedGameManager = nullptr;
-
-	GameManager::GameManager() {
-		_gameProgress[0] = GameProgress(Size(3, 3), 0, 0);
-		_gameProgress[1] = GameProgress(Size(3, 4), 0, 0);
-		_gameProgress[2] = GameProgress(Size(3, 5), 0, 0);
-		_gameProgress[3] = GameProgress(Size(4, 4), 0, 0);
-		_gameProgress[4] = GameProgress(Size(4, 5), 0, 0);
-		_gameProgress[5] = GameProgress(Size(5, 5), 0, 0);
+	GameManager::GameManager() : _isFirstRun(true), _isSoundOn(true), _isPause(false) {
+		const Size sizes[6] = BOARDS_SIZES;
+		for (auto i = 0; i != 6; ++i)
+		{
+			_gameProgress[i] = GameProgressContainer(sizes[i], 0, 0);
+		}
 	}
 
 	void GameManager::setTime(float time) {
@@ -41,81 +41,149 @@ namespace TakeTen {
 
 	GameManager::~GameManager() {
 	}
-
+	
 	std::shared_ptr<GameManager> GameManager::getInstance() {
 		if (!_sharedGameManager) {
+			CCLOG("GAME MANAGER >> CREATING INSTANCE...");
 			_sharedGameManager = std::shared_ptr<GameManager>(new (std::nothrow) GameManager());
-			CCASSERT(_sharedGameManager, "FATAL: Not enough memory");
 			_sharedGameManager->init();
 		}
 		return _sharedGameManager;
 	}
 
 	void GameManager::init() {
+
+		CCLOG("GAME MANAGER >> CREATING BOARD MANAGER...");
 		BoardManager::getInstance();
 
+		CCLOG("GAME MANAGER >> CREATING SCORE MANAGER...");
+		ScoreManager::getInstance();
 		if (!load()) {
 			CCLOG("SAVING EMPTY...");
 			save();
 		}
+
+		setSound(_isSoundOn);
+
+		
 	}
 
-	std::string GameManager::getFilePath(const std::string& fileName) {
-		return cocos2d::FileUtils::getInstance()->fullPathForFilename(fileName);
+	void GameManager::setSound(bool sound) {
+		_isSoundOn = sound;
 	}
 
+	void GameManager::soundSelect(bool force) {
+		if (_isSoundOn || force) {
+			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(SOUND_TICK);
+		}
+	}
+
+	void GameManager::soundUndo() {
+		if (_isSoundOn) {
+			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(SOUND_UNDO);
+		}
+	}
+
+	void GameManager::soundRemove() {
+		if (_isSoundOn) {
+			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(SOUND_REMOVE);
+		}
+	}
+
+	void GameManager::soundWon() {
+		if (_isSoundOn) {
+			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect(SOUND_WON);
+		}
+	}
+	
 	bool GameManager::save() {
-		std::ofstream outBoard(getFilePath("player.dat"), std::ios::out | std::ios::trunc | std::ios::binary);
+		std::ofstream outBoard(PLAYER_FILE, std::ios::out | std::ios::trunc | std::ios::binary);
 		if (!outBoard) {
 			return false;
 		}
-		CCLOG("SAVING PLAYER...");
+		outBoard.write(reinterpret_cast<char*>(&_isFirstRun), sizeof(bool));
+		outBoard.write(reinterpret_cast<char*>(&_isSoundOn), sizeof(bool));
 		for (auto i = 0; i != 6; ++i) {
-			CCLOG("----SIZE %d, %d, INDEX == %d ---- TIME == %f", _gameProgress[i].size.getWidht(), _gameProgress[i].size.getHeight(), _gameProgress[i].index, _gameProgress[i].time);
-			outBoard.write(reinterpret_cast<char*>(&_gameProgress[i]), sizeof(GameProgress));
+			outBoard.write(reinterpret_cast<char*>(&_gameProgress[i]), sizeof(GameProgressContainer));
 		}
 		return true;
 	}
 
 	bool GameManager::load() {
 
-		auto boardManager = BoardManager::getInstance();
-
-		std::ifstream inBoard(getFilePath("player.dat"), std::ios::in | std::ios::binary);
+		auto playerFile = "player.dat";
+		std::ifstream inBoard(PLAYER_FILE, std::ios::in | std::ios::binary);
 		if (!inBoard) {
-			CCLOG("LOADING PLAYER FAILED");
+			CCLOG("GAME MANAGER >> LOADING PLAYER FAILED");
 			return false;
 		}
-		CCLOG("LOADING PLAYER...");
+		CCLOG("GAME MANAGER >> LOADING PLAYER...");
+		
+		inBoard.read(reinterpret_cast<char*>(&_isFirstRun), sizeof(bool));
+		inBoard.read(reinterpret_cast<char*>(&_isSoundOn), sizeof(bool));
+
+		auto scoreManager = ScoreManager::getInstance();
+
 		for (auto i = 0; i != 6; ++i) {
-			inBoard.read(reinterpret_cast<char*>(&_gameProgress[i]), sizeof(GameProgress));
-			CCLOG("----SIZE %d, %d, INDEX == %d ---- TIME == %f", _gameProgress[i].size.getWidht(), _gameProgress[i].size.getHeight(), _gameProgress[i].index, _gameProgress[i].time);
+			inBoard.read(reinterpret_cast<char*>(&_gameProgress[i]), sizeof(GameProgressContainer));
 		}
+		const Size sizes[6] = BOARDS_SIZES;
+		for (auto i = 0; i != 6; ++i)
+		{
+			if (_gameProgress[i].size != sizes[i])
+			{
+				_gameProgress[i].size = sizes[i];
+				_gameProgress[i].index = 0;
+				_gameProgress[i].time = 0;
+			}
+
+		}
+
+		CCLOG("GAME MANAGER >> DONE...");
+
 		return true;
 	}
 
 	void GameManager::won() {
+		soundWon();
+
 		_gameProgress[_currentGameDifficulty].index++;
-		if (_gameProgress[_currentGameDifficulty].index == 100) {
-			//_gameProgress[_currentGameDifficulty].index = 0;
+
+		save();
+		const size_t boards[6] = BOARDS_TO_GENERATE;
+		if (_gameProgress[_currentGameDifficulty].index == boards[_currentGameDifficulty]) {
+			auto time = static_cast<int>(_gameProgress[_currentGameDifficulty].time);
+			ScoreManager::getInstance()->postScore(_currentGameDifficulty, time);
+			ScoreManager::getInstance()->update();
 			_currentGameDifficulty = nextDiffuculty(_currentGameDifficulty);
 			CCLOG("NEXT DIFFICULTY");
 		}
-		save();
+		
+	}
+
+	void GameManager::resetGame(GameDifficuty difficulty) {
+
+		CCLOG("RESET GAME %d", difficulty);
+
+		_gameProgress[difficulty].index = 0;
+		_gameProgress[difficulty].time = 0.0f;
+
+		newGame(difficulty);
 	}
 
 	void GameManager::newGame(GameDifficuty difficulty) {
-
-		if (_gameProgress[difficulty].index == 100) {
+		const size_t boards[6] = BOARDS_TO_GENERATE;
+		if (_gameProgress[difficulty].index == boards[difficulty]) {
+			CCLOG("GAME MANAGER >> NEW GAME RETURN");
 			return;
 		}
 
-		if (_currentGameDifficulty == TakeTen::Completed) {
-			auto gameScene = MainMenuScene::createScene();
-			cocos2d::Director::getInstance()->replaceScene(SCENE_TRANSITION(TRANSITION_TIME, gameScene));
-		}
+		_isFirstRun = false;
 
-		auto boardManager = BoardManager::getInstance();
+		if (_currentGameDifficulty == TakeTen::Completed) {
+			auto mainMenu = MainMenuScene::createScene();
+			cocos2d::Director::getInstance()->replaceScene(SCENE_TRANSITION(TRANSITION_TIME, mainMenu));
+		}
 
 		_currentGameDifficulty = difficulty;
 
