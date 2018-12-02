@@ -1,0 +1,23 @@
+{
+	"SelectDifficulty":"Selecteer moeilijkheidsniveau",
+	"ScoresHeader":"Top resultaten",
+	"ScoresPlayer":"Jij",
+	"ScoresWorld":"'s Werelds beste",
+	"Difficulty0":"Oefenen",
+    "Difficulty1":"Makkelijk",
+    "Difficulty2":"Gemiddeld",
+    "Difficulty3":"Moeilijk",
+    "Difficulty4":"Expert",
+    "Difficulty5":"Krankzinnig",
+	"Replay":"Begin opnieuw?",
+    "Pause":"Pauze",
+    "PauseTime":"Tijd besteed:",
+    "PauseProgress":"Level voortgang:",
+    "PauseBestTime":"Wereldrecord:",
+    "HelpText0":"Dit is het spel met getallen",
+    "HelpText1":"Je kunt een paar van gelijke\ngetallen verwijderen",
+    "HelpText2":"of een tweetal getallen welke\nopgeteld samen tien vormen",
+    "HelpText3":"Je kunt een paar verwijderen\nin aangrenzende cellen",
+    "HelpText4":"een paar in de zelfde rij of kolom met alleen lege cellen er tussen in",
+    "HelpText5":"Dat is simpel!\nProbeer deze op te lossen:"
+}

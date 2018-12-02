@@ -1,0 +1,23 @@
+{
+	"SelectDifficulty":"난이도 선택",
+	"ScoresHeader":"최상의 결과",
+	"ScoresPlayer":"당신",
+	"ScoresWorld":"세계 최고",
+	"Difficulty0":"연습",
+    "Difficulty1":"초급",
+    "Difficulty2":"중급",
+    "Difficulty3":"고급",
+    "Difficulty4":"전문가",
+    "Difficulty5":"무모한",
+	"Replay":"다시 시작?",
+    "Pause":"Pause",
+    "PauseTime":"소요한 시간:",
+    "PauseProgress":"레벨 진행:",
+    "PauseBestTime":"세계 기록:",
+    "HelpText0":"이는 숫자가 있는 게임입니다.",
+    "HelpText1":"동일한 숫자 쌍을 제거할 수 있습니다",
+    "HelpText2":"또는 10까지 추가힌 숫자 쌍.",
+    "HelpText3":"인접 셀의 쌍을 제거할 수 있습니다",
+    "HelpText4":"이것 사이에서만 빈 셀이 있으면 동일 행 또는 열에서 쌍",
+    "HelpText5":"간단합니다!\n이를 풀도록 시도해 보십시오:"
+}

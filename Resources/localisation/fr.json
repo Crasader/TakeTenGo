@@ -1,0 +1,23 @@
+{
+	"SelectDifficulty":"Sélectionner le niveau de difficulté",
+	"ScoresHeader":"Meilleurs résultats",
+	"ScoresPlayer":"Vous",
+	"ScoresWorld":"Meilleur mondial",
+	"Difficulty0":"Entraînement",
+    "Difficulty1":"Facile",
+    "Difficulty2":"Moyen",
+    "Difficulty3":"Difficile",
+    "Difficulty4":"Expert",
+    "Difficulty5":"Dément",
+	"Replay":"Recommencer ?",
+    "Pause":"Pause",
+    "PauseTime":"Temps passé :",
+    "PauseProgress":"Progrès du niveau :",
+    "PauseBestTime":"Record mondial :",
+    "HelpText0":"C'est le jeu avec les nombres",
+    "HelpText1":"Vous pouvez éliminer les paire de chiffres identiques",
+    "HelpText2":"ou les paires de chiffres\nqui totalisent 10",
+    "HelpText3":"Vous pouvez éliminer les paires des cellules adjacentes",
+    "HelpText4":"les paires dans la même rangée ou colonne s'il n'y a que des cellules vides entre elles",
+    "HelpText5":"C'est aussi simple !\nEssayez de résoudre ceci :"
+}

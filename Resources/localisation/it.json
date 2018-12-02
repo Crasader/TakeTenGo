@@ -1,0 +1,23 @@
+{
+	"SelectDifficulty":"Selezionare il livello di difficoltà",
+	"ScoresHeader":"Migliori risultati",
+	"ScoresPlayer":"Tu",
+	"ScoresWorld":"Il migliore del mondo",
+	"Difficulty0":"Pratica",
+    "Difficulty1":"Facile",
+    "Difficulty2":"Medio",
+    "Difficulty3":"Difficile",
+    "Difficulty4":"Esperto",
+    "Difficulty5":"Folle",
+	"Replay":"Ricominciare?",
+    "Pause":"Pause",
+    "PauseTime":"Tempo impiegato:",
+    "PauseProgress":"Livello di Progresso:",
+    "PauseBestTime":"Record del mondo:",
+    "HelpText0":"Questo è il gioco con i numeri",
+    "HelpText1":"È possibile rimuovere\nle coppie di cifre uguali",
+    "HelpText2":"o coppie di cifre\nche aggiungono fino a dieci",
+    "HelpText3":"È possibile rimuovere\nle coppie di celle adiacenti",
+    "HelpText4":"coppie in stessa riga o colonna\nse ci sono cellule solo vuote tra di loro",
+    "HelpText5":"E 'semplice!\nProva a risolvere questo:"
+}

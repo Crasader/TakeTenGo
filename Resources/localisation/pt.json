@@ -1,0 +1,23 @@
+{
+	"SelectDifficulty":"Selecione um nível de dificuldade",
+	"ScoresHeader":"Melhores resultados",
+	"ScoresPlayer":"Próprio",
+	"ScoresWorld":"Melhor do mundo",
+	"Difficulty0":"Praticar",
+    "Difficulty1":"Fácil",
+    "Difficulty2":"Médio",
+    "Difficulty3":"Difícil",
+    "Difficulty4":"Perito",
+    "Difficulty5":"Insano",
+	"Replay":"Recomeçar?",
+    "Pause":"Pausa",
+    "PauseTime":"Tempo dispendido:",
+    "PauseProgress":"Progresso do nível:",
+    "PauseBestTime":"Recorde mundial:",
+    "HelpText0":"Este é o jogo com números",
+    "HelpText1":"Pode remover pares\nde dígitos iguais",
+    "HelpText2":"ou pares de dígitos\ncuja soma dê dez",
+    "HelpText3":"Pode remover pares\nem células adjacentess",
+    "HelpText4":"pares na mesma linha ou coluna se existirem células\nem branco entre eles",
+    "HelpText5":"É simples!\nResolva o seguinte:"
+}

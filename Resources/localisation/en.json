@@ -1,0 +1,23 @@
+{
+	"SelectDifficulty":"Select difficulty level",
+	"ScoresHeader":"Best results",
+	"ScoresPlayer":"You",
+	"ScoresWorld":"World's best",
+	"Difficulty0":"Practice",
+    "Difficulty1":"Easy",
+    "Difficulty2":"Medium",
+    "Difficulty3":"Hard",
+    "Difficulty4":"Expert",
+    "Difficulty5":"Insane",
+	"Replay":"Start over?",
+    "Pause":"Pause",
+    "PauseTime":"Time spent:",
+    "PauseProgress":"Level progress:",
+    "PauseBestTime":"World record:",
+    "HelpText0":"This is the game with numbers",
+    "HelpText1":"You can remove pairs\nof equal digits",
+    "HelpText2":"or pairs of digits\nthat add up to ten",
+    "HelpText3":"You can remove\npairs in adjacent cells",
+    "HelpText4":"pairs in same row or column\nif there are only blank cells\nbetween them",
+    "HelpText5":"That's simple!\nTry to solve this"
+}

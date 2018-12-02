@@ -1,0 +1,23 @@
+{
+	"SelectDifficulty":"Schwierigkeitsgrad wählen",
+	"ScoresHeader":"Bestes Ergebnis",
+	"ScoresPlayer":"Du",
+	"ScoresWorld":"Weltbester",
+	"Difficulty0":"Üben",
+    "Difficulty1":"Leicht",
+    "Difficulty2":"Mittel",
+    "Difficulty3":"Schwer",
+    "Difficulty4":"Experte",
+    "Difficulty5":"Verrückt",
+	"Replay":"Nochmal?",
+    "Pause":"Pause",
+    "PauseProgress":"Level Fortschritt:",
+    "PauseTime":"Gebrauchte Zeit:",
+    "PauseBestTime":"Weltrekord:",
+    "HelpText0":"Dies ist das Spiel mit Zahlen",
+    "HelpText1":"Du kannst Paare von gleichen Zahlen entfernen",
+    "HelpText2":"oder Paare von Zahlen die addiert 10 ergeben",
+    "HelpText3":"Du kannst Paare in angrenzenden Zellen entfernen",
+    "HelpText4":"Paare in der gleichen Zeile oder Spalte, wenn nur leere Zellen zwischen ihnen sind",
+    "HelpText5":"Es ist einfach!\nVersuche, dies zu lösen:"
+}

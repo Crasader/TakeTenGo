@@ -1,0 +1,22 @@
+{
+	"SelectDifficulty":"选择难度等级",
+	"ScoresHeader":"最佳结果",
+	"ScoresPlayer":"你",
+	"ScoresWorld":"世界最佳",
+	"Difficulty0":"练习",
+    "Difficulty1":"简单",
+    "Difficulty2":"中等",
+    "Difficulty3":"困难",
+    "Difficulty4":"专家级",
+    "Difficulty5":"极难",
+	"Replay":"重新开始?",
+    "PauseTime":"所花时间:",
+    "PauseProgress":"等级进度:",
+    "PauseBestTime":"世界纪录:",
+    "HelpText0":"这是一款数字游戏",
+    "HelpText1":"你可以将相同数字",
+    "HelpText2":"或相加为十的数字成对移除",
+    "HelpText3":"你可以移除相邻框格的成对数字",
+    "HelpText4":"或由空格隔开的同一行或同一列的成对数字",
+    "HelpText5":"非常简单！\n尝试解题:"
+}

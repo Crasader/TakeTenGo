@@ -1,0 +1,23 @@
+{
+	"SelectDifficulty":"Seleccione nivel de dificultad",
+	"ScoresHeader":"Mejores resultados",
+	"ScoresPlayer":"Tú",
+	"ScoresWorld":"Mejores del mundo",
+	"Difficulty0":"Entrenamiento",
+    "Difficulty1":"Fácil",
+    "Difficulty2":"Intermedio",
+    "Difficulty3":"Difícil",
+    "Difficulty4":"Experto",
+    "Difficulty5":"Demencial",
+	"Replay":"¿Empezar de nuevo?",
+    "Pause":"Pausa",
+    "PauseTime":"Tiempo empleado:",
+    "PauseProgress":"Progreso en el nivel:",
+    "PauseBestTime":"Récord mundial:",
+    "HelpText0":"Éste es el juego con números",
+    "HelpText1":"Puedes eliminar parejas\nde dígitos iguales",
+    "HelpText2":"o parejas de dígitos\nque sumen diez",
+    "HelpText3":"Puedes eliminar parejas\nen casillas contiguas",
+    "HelpText4":"parejas en la misma fila o columna si sólo hay casillas vacías entre ellas",
+    "HelpText5":"¡Es sencillo!\nIntenta resolver esto:"
+}

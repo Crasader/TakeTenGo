@@ -1,0 +1,22 @@
+{
+	"SelectDifficulty":"難易度を選択",
+	"ScoresHeader":"最高結果",
+	"ScoresPlayer":"あなた",
+	"ScoresWorld":"世界のベスト",
+	"Difficulty0":"練習",
+    "Difficulty1":"簡単",
+    "Difficulty2":"普通",
+    "Difficulty3":"難しい",
+    "Difficulty4":"エキスパート",
+    "Difficulty5":"クレージー",
+	"Replay":"やり直しますか？",
+    "PauseTime":"ゲーム時間:",
+    "PauseProgress":"レベルの進度:",
+    "PauseBestTime":"世界記録:",
+    "HelpText0":"これは数字のゲームです",
+    "HelpText1":"同じ数字のペアまたは足して10になる",
+    "HelpText2":"数字のペアを消去出来ます",
+    "HelpText3":"隣接したセルペアを削除出来ます",
+    "HelpText4":"間に空のセルがある場合は同じ横列または縦列のペアを",
+    "HelpText5":"このように簡単です！\nこれを解いてみよう:"
+}
